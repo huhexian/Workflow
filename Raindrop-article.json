@@ -1,0 +1,136 @@
+{
+  "name": "raindrop",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        220
+      ],
+      "id": "85e8d2ad-d6b5-4af0-913e-6cbec2223553"
+    },
+    {
+      "parameters": {
+        "url": "https://bg.raindrop.io/rss/public/26365323"
+      },
+      "name": "RSS Feed Read",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        20
+      ],
+      "id": "ad8cdad6-1b3b-43a8-8f6d-9438bc491d6b"
+    },
+    {
+      "parameters": {
+        "interval": 10,
+        "unit": "minutes"
+      },
+      "name": "Interval",
+      "type": "n8n-nodes-base.interval",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        20
+      ],
+      "id": "98df905e-e835-402c-91d7-0ad30cf68f23"
+    },
+    {
+      "parameters": {
+        "chatId": "@hutalk",
+        "text": "=📖 {{$node[\"RSS Feed Read\"].json[\"title\"]}} #bookmark #raindrop\n\n{{$node[\"RSS Feed Read\"].json[\"link\"]}}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1740,
+        20
+      ],
+      "id": "07c53253-d725-4a8e-8454-2e49c5ff47ab",
+      "credentials": {
+        "telegramApi": {
+          "id": "CcgeVvRilGdDx3uG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "/* only return new items */\nconst staticData = getWorkflowStaticData('global');\nconst lastItemId = staticData.lastItemId;\n\nconsole.log('lastItemId', lastItemId);\nconst firstItem = items[0];\nlet newItems = [];\n\nfunction getId(item) {\n  return item.json.guid;\n}\n\nif (lastItemId) {\n  for (const item of items) {\n    if (getId(item) === lastItemId) {\n      break;\n    }\n    newItems.push(item)\n  }\n} else {\n  newItems = [firstItem]\n}\n\nstaticData.lastItemId = getId(firstItem)\nreturn newItems.reverse()"
+      },
+      "name": "Function",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        20
+      ],
+      "id": "1d3aae13-0d5d-41e0-b3db-4fc0b41c2783"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Interval": {
+      "main": [
+        [
+          {
+            "node": "RSS Feed Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Feed Read": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "RSS Feed Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "72d77bd3-f2dd-41f6-b153-e1e83f595119",
+  "id": "5T1rUagTmE0xTSfG",
+  "meta": {
+    "instanceId": "eceba9f015414307db204126103719f591fd6a69e470e254233d6b955ba93c51"
+  },
+  "tags": []
+}
